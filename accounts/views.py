@@ -1,10 +1,16 @@
 import random
+
+from django.contrib.auth import login
 from django.shortcuts import render
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import User, PhoneOTP
 from django.shortcuts import get_object_or_404
-from .serializer import CreateUserSerializer
+from .serializer import CreateUserSerializer, LoginSerializer
+from knox.views import LoginView as KnoxLoginView
+from knox.auth import TokenAuthentication
+
 
 # Create your views here.
 
@@ -63,6 +69,7 @@ class ValidatePhoneSendOTP(APIView):
 def send_otp(phone):
     if phone:
         key = random.randint(999, 9999)
+        # link = f"https://2factor.in/API/R1/?module=TRANS_SMS&apikey=75547813-11e2-11eb-9fa5-0200cd936042&to={phone}&from=NuNorm&templatename=NuNorm&var1={phone}&var2={key}"
         print(key)
         return key
 
@@ -142,3 +149,14 @@ class Register(APIView):
                 'status': False,
                 'detail': 'Both phone and password are not sent'
             })
+
+
+class LoginAPI(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super().post(request, format=None)
