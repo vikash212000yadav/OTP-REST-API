@@ -136,6 +136,6 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 REST_KNOX = {
-    'USER_SERIALIZER': 'account.serializer.UserSerializer',
+    'USER_SERIALIZER': 'accounts.serializer.UserSerializer',
     'TOKEN_TTL': timedelta(hours=24 * 7),
 }

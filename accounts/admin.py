@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PhoneOTP
+from .models import *
 # Register your models here.
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -9,6 +9,7 @@ from accounts.forms import UserAdminCreationForm, UserAdminChangeForm
 
 User = get_user_model()
 admin.site.register(PhoneOTP)
+admin.site.register(Attendee)
 
 
 class UserAdmin(BaseUserAdmin):

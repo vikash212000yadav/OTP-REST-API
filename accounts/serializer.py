@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 
+from accounts.models import *
+
 User = get_user_model()
 
 
@@ -10,9 +12,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields = ('phone', 'password')
         extra_kwargs = {'password': {'write_only': True}, }
 
-        def create(self, validated_data):
-            user = User.objects.create(**validated_data)
-            return user
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,6 +28,10 @@ class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         style={'input_type': 'password'}, trim_whitespace=False
     )
+
+    class Meta:
+        model = User
+        fields = ('phone', 'password')
 
     def validate(self, data):
         print(data)
@@ -60,3 +66,14 @@ class LoginSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(msg, code='authorization')
         data['user'] = user
         return data
+
+
+class AttendeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendee
+        fields = ('phone', 'password')
+        extra_kwargs = {'password': {'write_only': True}, }
+
+    def create(self, validated_data):
+        attendee = Attendee.objects.create(**validated_data)
+        return attendee

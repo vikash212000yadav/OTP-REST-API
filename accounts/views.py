@@ -1,5 +1,4 @@
 import random
-
 from django.contrib.auth import login
 from django.shortcuts import render
 from rest_framework import permissions
@@ -7,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import User, PhoneOTP
 from django.shortcuts import get_object_or_404
-from .serializer import CreateUserSerializer, LoginSerializer
+from .serializer import *
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
 
@@ -160,3 +159,43 @@ class LoginAPI(KnoxLoginView):
         user = serializer.validated_data['user']
         login(request, user)
         return super().post(request, format=None)
+
+
+class AttendeeRegister(APIView):
+    def post(self, request, *args, **kwargs):
+        phone = request.data.get('phone', False)
+        password = request.data.get('password', False)
+
+        if phone and password:
+            old = PhoneOTP.objects.filter(phone__iexact=phone)
+            if old.exists():
+                old = old.first()
+                validated = old.validated
+                if validated:
+                    temp_data = {
+                        'phone': phone,
+                        'password': password
+                    }
+                    serializer = AttendeeSerializer(data=temp_data)
+                    serializer.is_valid(raise_exception=True)
+                    user = serializer.save()
+                    old.delete()
+                    return Response({
+                        'status': True,
+                        'detail': 'Account created'
+                    })
+                else:
+                    return Response({
+                        'status': False,
+                        'detail': "OTP haven't verified. First do that step."
+                    })
+            else:
+                return Response({
+                    'status': False,
+                    'detail': 'Please verify phone first'
+                })
+        else:
+            return Response({
+                'status': False,
+                'detail': 'Both phone and password are not sent'
+            })

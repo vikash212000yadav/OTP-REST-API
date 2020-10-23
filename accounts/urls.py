@@ -10,4 +10,5 @@ urlpatterns = [
     path('register/', Register.as_view()),
     path('login/', LoginAPI.as_view()),
     path('logout/', knox_views.LogoutView.as_view()),
+    path('attendee_register/', AttendeeRegister.as_view()),
 ]
